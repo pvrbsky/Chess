@@ -16,11 +16,11 @@ from ursina import (
     Text,
     Ursina,
     Vec3,
-    WindowPanel,
     camera,
     color,
     destroy,
     invoke,
+    mouse,
     window,
 )
 
@@ -153,34 +153,43 @@ class Chess3DApp:
     def show_login_screen(self) -> None:
         self.mode = "login"
         self.clear_ui()
+        self.clear_board()
 
-        panel = WindowPanel(title="Vyber uživatele", content=(), enabled=True, scale=(0.7, 0.8))
-        panel.position = (0, 0)
-        self.ui_entities.append(panel)
+        mouse.visible = True
+        panel_bg = Entity(
+            parent=camera.ui,
+            model="quad",
+            color=color.rgba(20, 28, 45, 230),
+            scale=(0.86, 0.86),
+            position=(0, 0),
+        )
+        self.ui_entities.append(panel_bg)
 
         user_names = [u.name for u in self.db.list_users()]
-        y = 0.25
+        title = Text(parent=camera.ui, text="Vyber uživatele", y=0.38, scale=1.6)
+        self.ui_entities.append(title)
+        y = 0.24
         for name in user_names:
-            btn = Button(parent=panel, text=name, scale=(0.8, 0.08), y=y)
+            btn = Button(parent=camera.ui, text=name, scale=(0.62, 0.07), y=y, color=color.rgb(52, 79, 116))
             btn.on_click = lambda n=name: self._select_user(n)
             self.ui_entities.append(btn)
-            y -= 0.1
+            y -= 0.085
 
-        self.user_input = InputField(parent=panel, default_value="", y=-0.3, scale=(0.8, 0.08))
+        self.user_input = InputField(parent=camera.ui, default_value="", y=-0.22, scale=(0.62, 0.07))
         self.ui_entities.append(self.user_input)
 
-        create_btn = Button(parent=panel, text="Vytvořit uživatele", y=-0.4, scale=(0.8, 0.08))
+        create_btn = Button(parent=camera.ui, text="Vytvořit uživatele", y=-0.31, scale=(0.62, 0.07))
         create_btn.on_click = self._create_user
         self.ui_entities.append(create_btn)
 
-        login_btn = Button(parent=panel, text="Přihlásit se", y=-0.5, scale=(0.8, 0.08), color=color.azure)
+        login_btn = Button(parent=camera.ui, text="Přihlásit se", y=-0.40, scale=(0.62, 0.07), color=color.azure)
         login_btn.on_click = self._login_selected
         self.ui_entities.append(login_btn)
 
-        self.login_msg = Text(parent=panel, text="", y=-0.62, origin=(0, 0), color=color.orange)
+        self.login_msg = Text(parent=camera.ui, text="", y=-0.48, origin=(0, 0), color=color.orange)
         self.ui_entities.append(self.login_msg)
 
-        self.selected_label = Text(parent=panel, text="Vybraný uživatel: žádný", y=-0.22)
+        self.selected_label = Text(parent=camera.ui, text="Vybraný uživatel: žádný", y=-0.14, scale=1.0)
         self.ui_entities.append(self.selected_label)
 
     def _create_user(self) -> None:
@@ -211,6 +220,7 @@ class Chess3DApp:
         self.mode = "menu"
         self.clear_ui()
         self.clear_board()
+        mouse.visible = True
 
         title = Text(text=f"Chess Academy 3D — {self.current_user}", y=0.4, scale=1.5)
         self.ui_entities.append(title)
@@ -245,24 +255,33 @@ class Chess3DApp:
     def show_content_list(self, title: str, items: List[Dict], mode_key: str) -> None:
         self.mode = mode_key
         self.clear_ui()
+        self.clear_board()
 
-        self.ui_entities.append(Text(text=f"{title} ({len(items)})", y=0.42, scale=1.4))
-        self.ui_entities.append(Text(text="Klikni na položku pro uložení progresu.", y=0.34, scale=1.0))
+        panel_bg = Entity(
+            parent=camera.ui,
+            model="quad",
+            color=color.rgba(18, 25, 40, 230),
+            scale=(0.92, 0.92),
+            position=(0, -0.02),
+        )
+        self.ui_entities.append(panel_bg)
+        self.ui_entities.append(Text(text=f"{title} ({len(items)})", y=0.43, scale=1.4))
+        self.ui_entities.append(Text(text="Klikni na položku pro uložení progresu.", y=0.36, scale=0.95))
 
-        start, stop = 0, 15
-        y = 0.22
+        start, stop = 0, 10
+        y = 0.25
         for item in items[start:stop]:
             label = item.get("title") or f"{item['robot']} ({item['difficulty']})"
-            b = Button(text=label, scale=(0.8, 0.06), y=y)
+            b = Button(text=label, scale=(0.82, 0.055), y=y)
             b.on_click = lambda id=item["id"]: self._complete_item(mode_key, id)
             self.ui_entities.append(b)
-            y -= 0.07
+            y -= 0.065
 
-        back = Button(text="Zpět", y=-0.44, scale=(0.3, 0.08), color=color.gray)
+        back = Button(text="Zpět", y=-0.43, scale=(0.3, 0.08), color=color.gray)
         back.on_click = self.show_main_menu
         self.ui_entities.append(back)
 
-        self.progress_msg = Text(text="", y=-0.35)
+        self.progress_msg = Text(text="", y=-0.35, scale=0.95)
         self.ui_entities.append(self.progress_msg)
 
     def _complete_item(self, mode_key: str, item_id: int) -> None:
@@ -284,6 +303,7 @@ class Chess3DApp:
         self.mode = "game"
         self.clear_ui()
         self.clear_board()
+        mouse.visible = True
         self.board.reset()
         self.draw_board()
         self.draw_pieces()
