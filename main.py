@@ -17,11 +17,11 @@ from ursina import (
     Ursina,
     Vec3,
     WindowPanel,
-    application,
     camera,
     color,
     destroy,
     invoke,
+    window,
 )
 
 
@@ -134,7 +134,6 @@ class Chess3DApp:
 
         self.app = Ursina(borderless=False)
         self.app.title = "Chess Academy 3D"
-        window = application.window
         window.color = color.rgb(18, 22, 35)
 
         camera.position = (4, 10, -10)
